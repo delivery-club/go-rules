@@ -490,3 +490,18 @@ func globalErrorsWithStack(m dsl.Matcher) {
 		Where(m["err"].Type.Implements(`error`) && m["err"].Object.IsGlobal()).
 		Report(`don't use stack for global errors`)
 }
+
+//doc:summary   Finds unchecked errors in if statements
+//doc:tags      diagnostic
+//doc:before    if err := expr(); err2 != nil { /*...*/ }
+//doc:after     if err := expr(); err != nil { /*...*/ }
+func errCheckInIf(m dsl.Matcher) {
+	m.Match(
+		`if $err := $_($*_); $err2 != nil { $*_ }`,
+		`if $err = $_($*_); $err2 != nil { $*_ }`,
+		`if $*_, $err := $_($*_); $err2 != nil { $*_ }`,
+		`if $*_, $err = $_($*_); $err2 != nil { $*_ }`).
+		Where(m["err"].Type.Implements("error") && m["err2"].Type.Implements("error") &&
+			m["err"].Text != m["err2"].Text).
+		Report("returned error '$err' must be checked")
+}

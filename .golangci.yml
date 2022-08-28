@@ -6,6 +6,25 @@ linters:
     - varcheck
   enable:
     - gocritic
+    - revive
+    - deadcode
+    - errcheck
+    - gas
+    - gocritic
+    - gofmt
+    - goimports
+    - golint
+    - govet
+    - gosimple
+    - ineffassign
+    - megacheck
+    - misspell
+    - nakedret
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unconvert
+    - unparam
 linters-settings:
   gocritic:
     enabled-checks:

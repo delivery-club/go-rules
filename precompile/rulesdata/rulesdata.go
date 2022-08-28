@@ -1567,6 +1567,62 @@ var PrecompiledRules = &ir.File{
 				},
 			},
 		},
+		{
+			Line:        498,
+			Name:        "errCheckInIf",
+			MatcherName: "m",
+			DocTags:     []string{"diagnostic"},
+			DocSummary:  "Finds unchecked errors in if statements",
+			DocBefore:   "if err := expr(); err2 != nil { /*...*/ }",
+			DocAfter:    "if err := expr(); err != nil { /*...*/ }",
+			Rules: []ir.Rule{{
+				Line: 499,
+				SyntaxPatterns: []ir.PatternString{
+					{Line: 500, Value: "if $err := $_($*_); $err2 != nil { $*_ }"},
+					{Line: 501, Value: "if $err = $_($*_); $err2 != nil { $*_ }"},
+					{Line: 502, Value: "if $*_, $err := $_($*_); $err2 != nil { $*_ }"},
+					{Line: 503, Value: "if $*_, $err = $_($*_); $err2 != nil { $*_ }"},
+				},
+				ReportTemplate: "returned error '$err' must be checked",
+				WhereExpr: ir.FilterExpr{
+					Line: 504,
+					Op:   ir.FilterAndOp,
+					Src:  "m[\"err\"].Type.Implements(\"error\") && m[\"err2\"].Type.Implements(\"error\") &&\n\tm[\"err\"].Text != m[\"err2\"].Text",
+					Args: []ir.FilterExpr{
+						{
+							Line: 504,
+							Op:   ir.FilterAndOp,
+							Src:  "m[\"err\"].Type.Implements(\"error\") && m[\"err2\"].Type.Implements(\"error\")",
+							Args: []ir.FilterExpr{
+								{
+									Line:  504,
+									Op:    ir.FilterVarTypeImplementsOp,
+									Src:   "m[\"err\"].Type.Implements(\"error\")",
+									Value: "err",
+									Args:  []ir.FilterExpr{{Line: 504, Op: ir.FilterStringOp, Src: "\"error\"", Value: "error"}},
+								},
+								{
+									Line:  504,
+									Op:    ir.FilterVarTypeImplementsOp,
+									Src:   "m[\"err2\"].Type.Implements(\"error\")",
+									Value: "err2",
+									Args:  []ir.FilterExpr{{Line: 504, Op: ir.FilterStringOp, Src: "\"error\"", Value: "error"}},
+								},
+							},
+						},
+						{
+							Line: 505,
+							Op:   ir.FilterNeqOp,
+							Src:  "m[\"err\"].Text != m[\"err2\"].Text",
+							Args: []ir.FilterExpr{
+								{Line: 505, Op: ir.FilterVarTextOp, Src: "m[\"err\"].Text", Value: "err"},
+								{Line: 505, Op: ir.FilterVarTextOp, Src: "m[\"err2\"].Text", Value: "err2"},
+							},
+						},
+					},
+				},
+			}},
+		},
 	},
 }
 
