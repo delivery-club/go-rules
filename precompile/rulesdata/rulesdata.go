@@ -1578,10 +1578,10 @@ var PrecompiledRules = &ir.File{
 			Rules: []ir.Rule{{
 				Line: 499,
 				SyntaxPatterns: []ir.PatternString{
-					{Line: 499, Value: "if $err := $_($*_); $err2 != nil { $*_ }"},
-					{Line: 500, Value: "if $err = $_($*_); $err2 != nil { $*_ }"},
-					{Line: 501, Value: "if $*_, $err := $_($*_); $err2 != nil { $*_ }"},
-					{Line: 502, Value: "if $*_, $err = $_($*_); $err2 != nil { $*_ }"},
+					{Line: 500, Value: "if $err := $_($*_); $err2 != nil { $*_ }"},
+					{Line: 501, Value: "if $err = $_($*_); $err2 != nil { $*_ }"},
+					{Line: 502, Value: "if $*_, $err := $_($*_); $err2 != nil { $*_ }"},
+					{Line: 503, Value: "if $*_, $err = $_($*_); $err2 != nil { $*_ }"},
 				},
 				ReportTemplate: "returned error '$err' must be checked",
 				WhereExpr: ir.FilterExpr{
