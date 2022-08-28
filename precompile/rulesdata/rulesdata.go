@@ -1567,6 +1567,43 @@ var PrecompiledRules = &ir.File{
 				},
 			},
 		},
+		{
+			Line:        495,
+			Name:        "errCheckInIf",
+			MatcherName: "m",
+			DocTags:     []string{"diagnostic"},
+			Rules: []ir.Rule{{
+				Line: 496,
+				SyntaxPatterns: []ir.PatternString{
+					{Line: 496, Value: "if $err := $_($*_); $err2 != nil { $*_ }"},
+					{Line: 497, Value: "if $err = $_($*_); $err2 != nil { $*_ }"},
+				},
+				ReportTemplate: "returned error '$err' must be checked",
+				WhereExpr: ir.FilterExpr{
+					Line: 498,
+					Op:   ir.FilterAndOp,
+					Src:  "m[\"err\"].Type.Implements(\"error\") && m[\"err\"].Text != m[\"err2\"].Text",
+					Args: []ir.FilterExpr{
+						{
+							Line:  498,
+							Op:    ir.FilterVarTypeImplementsOp,
+							Src:   "m[\"err\"].Type.Implements(\"error\")",
+							Value: "err",
+							Args:  []ir.FilterExpr{{Line: 498, Op: ir.FilterStringOp, Src: "\"error\"", Value: "error"}},
+						},
+						{
+							Line: 498,
+							Op:   ir.FilterNeqOp,
+							Src:  "m[\"err\"].Text != m[\"err2\"].Text",
+							Args: []ir.FilterExpr{
+								{Line: 498, Op: ir.FilterVarTextOp, Src: "m[\"err\"].Text", Value: "err"},
+								{Line: 498, Op: ir.FilterVarTextOp, Src: "m[\"err2\"].Text", Value: "err2"},
+							},
+						},
+					},
+				},
+			}},
+		},
 	},
 }
 
