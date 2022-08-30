@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 const (
@@ -27,10 +28,11 @@ func (p platformInfo) String() string { return p.goos + "-" + p.goarch }
 func main() {
 	log.SetFlags(0)
 
-	version := flag.String("version", "", "dcRules release version")
+	versionFlag := flag.String("version", "", "dcRules release version")
 	flag.Parse()
 
-	if *version == "" {
+	version := strings.TrimLeft(*versionFlag, "v")
+	if version == "" {
 		log.Fatal("version argument is not set")
 	}
 
@@ -49,7 +51,7 @@ func main() {
 		return
 	}
 
-	checksums, err := os.Create(filepath.Join(releaseDir, projectName+"-"+*version+"-checksums.txt"))
+	checksums, err := os.Create(filepath.Join(releaseDir, projectName+"-"+version+"-checksums.txt"))
 	if err != nil {
 		log.Printf("on create checksums: %s", err)
 		return
@@ -57,7 +59,7 @@ func main() {
 	defer checksums.Close()
 
 	for _, platform := range platforms {
-		if err = prepareArchive(checksums, platform, *version); err != nil {
+		if err = prepareArchive(checksums, platform, version); err != nil {
 			log.Printf("error: build %s: %v", platform, err)
 			return
 		}
