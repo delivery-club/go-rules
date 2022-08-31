@@ -16,8 +16,7 @@ import (
 )
 
 var (
-	flagTag     string
-	flagDebug   string
+	flagDebug   bool
 	flagDisable string
 	flagEnable  string
 	flagRules   string
@@ -50,9 +49,9 @@ var (
 )
 
 func init() {
-	Analyzer.Flags.StringVar(&flagDebug, "d", "", "enable verbose mode for specific rule")
-	Analyzer.Flags.StringVar(&flagDisable, "disabled", "", "comma-separated list of enabled groups or skip empty to enable everything")
-	Analyzer.Flags.StringVar(&flagEnable, "enabled", "<all>", "comma-separated list of disabled groups or skip empty to enable everything")
+	Analyzer.Flags.BoolVar(&flagDebug, "debug", false, "enable verbose mode")
+	Analyzer.Flags.StringVar(&flagDisable, "disable", "", "comma-separated list of disabled groups or skip empty to enable everything: #perfomance,#experimental")
+	Analyzer.Flags.StringVar(&flagEnable, "enable", "<all>", "comma-separated list of enabled groups or skip empty to enable everything: #diagnostic,#style")
 	Analyzer.Flags.StringVar(&flagRules, "rules", "", "comma-separated list of rules files")
 }
 
@@ -123,13 +122,13 @@ func newEngine() error {
 		disabledTags["experimental"] = true
 	}
 
-	if flagDebug != "" {
+	if flagDebug {
 		debugPrint(fmt.Sprintf("enabled tags: %+v", enabledTags))
 		debugPrint(fmt.Sprintf("disabled tags: %+v", disabledTags))
 	}
 
 	ctx := &ruleguard.LoadContext{
-		DebugImports: flagDebug != "",
+		DebugImports: flagDebug,
 		Fset:         token.NewFileSet(),
 		DebugPrint:   debugPrint,
 		GroupFilter: func(g *ruleguard.GoRuleGroup) bool {
@@ -147,7 +146,7 @@ func newEngine() error {
 				}
 			}
 
-			if flagDebug != "" {
+			if flagDebug {
 				if whyDisabled != "" {
 					debugPrint(fmt.Sprintf("(-) %s is %s", g.Name, whyDisabled))
 				} else {
@@ -197,7 +196,6 @@ func runAnalyzer(pass *analysis.Pass) (interface{}, error) {
 	}
 
 	ctx := &ruleguard.RunContext{
-		Debug:      flagDebug,
 		DebugPrint: debugPrint,
 		Pkg:        pass.Pkg,
 		Types:      pass.TypesInfo,

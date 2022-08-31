@@ -19,3 +19,4 @@ test-projects
 
 dist/
 bin
+.DS_Store
