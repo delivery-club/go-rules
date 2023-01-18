@@ -38,7 +38,7 @@ Full installation example: https://github.com/peakle/dc-rules-example
        ```
        OR
        ``` shell
-       go install -v github.com/delivery-club/delivery-club-rules/cmd/dcRules
+       go install -v github.com/delivery-club/delivery-club-rules/cmd/dcRules@latest
        ```
         2. Run lint:
        ``` shell
