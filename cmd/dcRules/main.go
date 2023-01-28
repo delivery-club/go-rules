@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/token"
 	"io/ioutil"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -16,10 +17,11 @@ import (
 )
 
 var (
-	flagDebug   bool
-	flagDisable string
-	flagEnable  string
-	flagRules   string
+	flagDebug    bool
+	flagDisable  string
+	flagEnable   string
+	flagRules    string
+	flagSkipDirs string
 )
 
 // Version contains extra version info.
@@ -35,7 +37,7 @@ func docString() string {
 	return doc + " (" + Version + ")"
 }
 
-// Analyzer exports deliveryClubRules as a analysis-compatible object.
+// Analyzer exports deliveryClubRules as an analysis-compatible object.
 var Analyzer = &analysis.Analyzer{
 	Name: "deliveryClubRules",
 	Doc:  docString(),
@@ -46,13 +48,15 @@ var (
 	globalEngineMu      sync.Mutex
 	globalEngine        *ruleguard.Engine
 	globalEngineErrored bool
+	skipDirsPatterns    []*regexp.Regexp
 )
 
 func init() {
-	Analyzer.Flags.BoolVar(&flagDebug, "debug", false, "enable verbose mode")
+	Analyzer.Flags.BoolVar(&flagDebug, "V", false, "enable verbose mode")
 	Analyzer.Flags.StringVar(&flagDisable, "disable", "", "comma-separated list of disabled groups or skip empty to enable everything: #perfomance,#experimental")
 	Analyzer.Flags.StringVar(&flagEnable, "enable", "<all>", "comma-separated list of enabled groups or skip empty to enable everything: #diagnostic,#style")
 	Analyzer.Flags.StringVar(&flagRules, "rules", "", "comma-separated list of rules files")
+	Analyzer.Flags.StringVar(&flagSkipDirs, "skip-dirs", "", "comma-separated list of dirs for skip")
 }
 
 func prepareEngine() error {
@@ -179,6 +183,10 @@ func newEngine() error {
 		}
 	}
 
+	for _, d := range strings.Split(flagSkipDirs, ",") {
+		skipDirsPatterns = append(skipDirsPatterns, regexp.MustCompile(d))
+	}
+
 	return nil
 }
 
@@ -226,13 +234,32 @@ func runAnalyzer(pass *analysis.Pass) (interface{}, error) {
 		},
 	}
 
+	skippedPaths := make(map[string]struct{})
 	for _, f := range pass.Files {
+		if _, ok := skippedPaths[pass.Pkg.Path()]; ok || skipDir(pass.Pkg.Path()) {
+			if flagDebug {
+				debugPrint("dir skipped: " + pass.Pkg.Path())
+			}
+
+			skippedPaths[pass.Pkg.Path()] = struct{}{}
+			continue
+		}
+
 		if err := globalEngine.Run(ctx, f); err != nil {
 			return nil, err
 		}
 	}
 
 	return nil, nil
+}
+
+func skipDir(dir string) bool {
+	for _, pattern := range skipDirsPatterns {
+		if pattern.MatchString(dir) {
+			return true
+		}
+	}
+	return false
 }
 
 func debugPrint(s string) {
