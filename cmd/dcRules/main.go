@@ -122,10 +122,6 @@ func newEngine() error {
 		return ""
 	}
 
-	if !enabledTags["experimental"] {
-		disabledTags["experimental"] = true
-	}
-
 	if flagDebug {
 		debugPrint(fmt.Sprintf("enabled tags: %+v", enabledTags))
 		debugPrint(fmt.Sprintf("disabled tags: %+v", disabledTags))
@@ -183,8 +179,10 @@ func newEngine() error {
 		}
 	}
 
-	for _, d := range strings.Split(flagSkipDirs, ",") {
-		skipDirsPatterns = append(skipDirsPatterns, regexp.MustCompile(d))
+	if flagSkipDirs != "" {
+		for _, d := range strings.Split(flagSkipDirs, ",") {
+			skipDirsPatterns = append(skipDirsPatterns, regexp.MustCompile(d))
+		}
 	}
 
 	return nil

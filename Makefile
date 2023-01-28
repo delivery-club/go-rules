@@ -24,5 +24,5 @@ install: generate
 build:
 	go build -o bin/dcRules -ldflags "-s -w -X ./cmd/dcRules.VERSION=${VERSION}" ./cmd/dcRules
 
-draft-release:
+release:
 	go run releaser/release.go -version ${VERSION}
