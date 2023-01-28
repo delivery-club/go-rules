@@ -131,12 +131,12 @@ func getterNaming(m dsl.Matcher) {
 }
 
 // disabled until https://github.com/go-critic/go-critic/issues/1176
-//func oneMethodInterfaceNaming(m dsl.Matcher) {
+// func oneMethodInterfaceNaming(m dsl.Matcher) {
 //	m.Match(`type $name interface{ $method ($*_) $*_ }`).
 //		Where(m["name"].Text.Matches(`^[A-Z]`) && !m["name"].Text.Matches(`\w(er|or|ar)$`)).
 //		Report("change interface name to $method + 'er|or|ar' pattern").
 //		At(m["name"])
-//}
+// }
 
 //doc:summary   Detects 'interface' word in interface declarations
 //doc:tags      style
@@ -193,12 +193,12 @@ func simplifyErrorReturnWithErrorsPkg(m dsl.Matcher) {
 		Report(`may be simplified to return error without if statement`)
 }
 
-//TODO: too wide for production usage now
-//func isBuiltinInterface(ctx *dsl.VarFilterContext) bool {
+// TODO: too wide for production usage now
+// func isBuiltinInterface(ctx *dsl.VarFilterContext) bool {
 //	return types.Implements(ctx.Type, ctx.GetInterface("error")) || types.Implements(ctx.Type, ctx.GetInterface("context.Context"))
-//}
+// }
 //
-//func returnConcreteInsteadInterface(m dsl.Matcher) {
+// func returnConcreteInsteadInterface(m dsl.Matcher) {
 //	m.Match(`func $name($*_) $arg { $*_ }`,
 //		`func ($_ $_) $name($*_) $arg { $*_ }`,
 //		`func ($_) $name($*_) $arg { $*_ }`,
@@ -210,7 +210,7 @@ func simplifyErrorReturnWithErrorsPkg(m dsl.Matcher) {
 //			(m["arg"].Type.Underlying().Is(`interface{ $*_ }`) && !m["arg"].Filter(isBuiltinInterface))).
 //		Report(`in exported functions return concrete type instead of interface`).
 //		At(m["name"])
-//}
+// }
 
 //doc:summary   Detects loops inside functions that use defer
 //doc:tags      diagnostic
@@ -329,7 +329,7 @@ func regexpCompileInLoop(m dsl.Matcher) {
 }
 
 //doc:summary   Detects unreleased resources
-//doc:tags      experimental diagnostic
+//doc:tags      diagnostic
 //doc:before    s, _ := os.Open("foo.txt"); s.Read(body); return body
 //doc:after     s, _ := os.Open("foo.txt"); defer s.Close(); s.Read(body); return body
 func unclosedResource(m dsl.Matcher) {
@@ -407,7 +407,7 @@ func unstoppedTicker(m dsl.Matcher) {
 func simplifyErrorCheck(m dsl.Matcher) {
 	m.Match(`$err := $f($*args); if $err != nil { $*body }`).
 		Where(m["err"].Type.Implements("error") &&
-			m["f"].Text.Matches("(?s)^.{0,40}$") && m["args"].Text.Matches("(?s)^.{0,40}$")). /// TODO: check that chars count in line <= 120
+			m["f"].Text.Matches("(?s)^.{0,40}$") && m["args"].Text.Matches("(?s)^.{0,40}$")). // / TODO: check that chars count in line <= 120
 		Report(`error check can be simplified in one line`).
 		Suggest(`if $err := $f($args); $err != nil { $body }`)
 
