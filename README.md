@@ -1,3 +1,5 @@
+# Project in archive now. For actual rules look into: https://github.com/peakle/delivery-club-rules
+
 # delivery-club-rules
 
 Delivery club go rules linter
