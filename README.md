@@ -1,4 +1,4 @@
-# Project in archive now. For actual rules look into: https://github.com/peakle/delivery-club-rules
+# Project in archive now. For actual rules look into: https://github.com/peakle/go-rules
 
 # delivery-club-rules
 
